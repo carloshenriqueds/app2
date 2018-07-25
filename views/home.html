@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>App</title>
+      <link rel="stylesheet" href="assets/video.css">
+      <link rel="stylesheet" href="assets/chat.css">
+      <link rel="stylesheet" href="assets/vendors/bootstrap/dist/css/bootstrap.min.css">
+      <link rel="stylesheet" href="assets/vendors/font-awesome/css/font-awesome.min.css ">
+      <link rel="stylesheet" href="assets/vendors/nprogress/nprogress.css ">
+      <link rel="stylesheet" href="assets/vendors/iCheck/skins/flat/green.css ">
+      <link rel="stylesheet" href="assets/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css ">
+      <link rel="stylesheet" href="assets/vendors/jqvmap/dist/jqvmap.min.css ">
+      <link rel="stylesheet" href="assets/build/css/custom.min.css ">
+      <link rel="stylesheet" href="assets/vendors/animate.css/animate.min.css ">
+      <link rel="stylesheet" href="assets/vendors/normalize-css/normalize.css ">
+      <link rel="stylesheet" href="assets/vendors/ion.rangeSlider/css/ion.rangeSlider.css ">
+      <link rel="stylesheet" href="assets/vendors/ion.rangeSlider/css/ion.rangeSlider.skinFlat.css ">
+      <link rel="stylesheet" href="assets/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css ">
+      <link rel="stylesheet" href="assets/vendors/cropper/dist/cropper.min.css ">
+      <link rel="stylesheet" href="assets/vendors/iCheck/skins/flat/green.css ">
+      <link rel="stylesheet" href="assets/vendors/google-code-prettify/bin/prettify.min.css ">
+      <link rel="stylesheet" href="assets/vendors/select2/dist/css/select2.min.css ">
+      <link rel="stylesheet" href="assets/vendors/switchery/dist/switchery.min.css ">
+      <link rel="stylesheet" href="assets/vendors/starrr/dist/starrr.css ">
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+   </head>
+   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+   <style>
+    #loading {
+        position: absolute; width: 100%; height: 100%; background: url('http://gifimage.net/wp-content/uploads/2018/05/spinner-gif-transparent-background-13.gif') no-repeat center center;
+    }
+   </style>
+   <script>
+      
+        var app=angular.module('myApp',[]);
+        app.controller('cntrl', function($scope,$http){
+         $http.post("Controller.php",{'method':'verifySession'})
+            .success(function(data){
+             if(data == "not found"){
+               window.location = "login.html";
+             }
+             $scope.imgProfile = data.imgUrl;
+             $scope.userName = data.nameUser;
+             $scope.token = data.token;
+        
+         })
+         $http.post("Controller.php",{'method':'getLiveList'})
+            .success(function(data){
+             $scope.data=data
+              //$scope.displayStud();
+         })
+          $scope.obj={'idisable':false};
+        
+          $scope.insertdata=function(){
+            $http.post("Controller.php",{'method':'getLiveList'})
+            .success(function(data){
+             $scope.data=data
+              //$scope.displayStud();
+            })
+          }
+
+         $scope.openLive=function(videoId){
+             $http.post("Controller.php",{'method':'getLiveData', 'videoId': videoId})
+                 .success(function(data){
+                     $scope.data = null;
+                     document.getElementById('viewVideo').src = data.urlLive;
+                     $scope.videoUrl = data.urlLive;
+                     $scope.chatId = data.chatId;
+                     $scope.chatOn = true;
+                     $scope.loadChat();
+
+                 })
+         }
+
+         $scope.loadChat=function(){
+             $http.post("Controller.php",{'method':'getChatList', 'chatId': $scope.chatId})
+                     .success(function(data){
+                         $scope.messages = data;
+                         $scope.moveScroll = true;
+                     })
+         }
+
+         $scope.sendComment=function(){
+            $('#loading').show();
+             chatId = $scope.chatId;
+             message = document.getElementById("btn-input").value;
+
+             $http.post("Controller.php",{'method':'sendComment', 'chatId': chatId, 'message': message})
+                 .success(function(data){
+                     document.getElementById("btn-input").value = "";
+                     $scope.loadChat();
+                     $('#loading').hide();
+                     var objDiv = document.getElementById("chatbody");
+                     objDiv.scrollTop = objDiv.scrollHeight;
+                 })
+         }
+
+         $scope.chatBody=function(){
+            var objDiv = document.getElementById("chatbody");
+            objDiv.scrollTop = objDiv.scrollHeight;
+         }
+
+         var refreshIntervalId = setInterval(function(){
+            if($scope.moveScroll){
+                var objDiv = document.getElementById("chatbody");
+                objDiv.scrollTop = objDiv.scrollHeight;
+                $scope.moveScroll = false;
+                clearInterval(refreshIntervalId);
+             }
+            }, 2)
+
+         setInterval(function(){
+             if($scope.chatOn){
+                 $scope.algo = $scope.chatId;
+                 $http.post("Controller.php",{'method':'getChatList', 'chatId': $scope.chatId})
+                     .success(function(data){
+                         $scope.messages = data;
+                     })
+             }
+         }, 10000)
+        });
+        
+        function onLoadDiv(){
+            var objDiv = document.getElementById("chatbody");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+     </script>
+   <div ng-app="myApp" ng-controller="cntrl">
+   <body class="nav-md" style="background-color: #141D22 !important" >
+      <div class="container body" style="background-color: #141D22 !important">
+      <div class="main_container" style="background-color: #141D22 !important">
+      <div class="col-md-3 left_col" style="background-color: #141D22 !important">
+         <div class="left_col scroll-view" style="background-color: #141D22 !important">
+            <div class="navbar nav_title" style="border: 0; background-color: #141D22 !important">
+               <a href="#" class="site_title"><i class="fa fa-camera"></i> <span>Live</span></a>
+            </div>
+            <div class="clearfix"></div>
+            <div class="profile">
+               <div class="profile_pic">
+                  <img src="{{imgProfile}}" class="img-circle profile_img">
+               </div>
+               <div class="profile_info" style="color: white">
+                   <b>Hi, {{userName}}</b>
+               </div>
+            </div>
+            <br />
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+               <div class="menu_section">
+                  <br><br><br>
+                  <ul class="nav side-menu">
+                    <li><a href="home.html"><i class="fa fa-home"></i>Home</a></li>
+                     <li>
+                        <a><i class="fa fa-home"></i> Report  <span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                           <li><a href="report.html">List</a></li>
+                        </ul>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="top_nav">
+         <div class="nav_menu">
+            <nav>
+               <div class="nav toggle">
+                  <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+               </div>
+               <br><br><br>
+            </nav>
+         </div>
+      </div>
+      <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+      <script src="http://maps.googleapis.com/maps/api/js?sensor=true&libraries=places"></script>
+
+      <div class="right_col" role="main">
+         <div class="">
+            <div class="page-title">
+               <div class="title_left">
+                  <h3 style="color: #141D22">StreamViewer</h3>
+               </div>
+            </div>
+
+            <div class="clearfix">
+
+            </div>
+
+            <div class="row">
+               <div class="col-md-12 col-sm-12 col-xs-12">
+                  <div class="x_panel">
+                     <div class="x_title">
+                        <h2><small></small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                           <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                           </li>
+                        </ul>
+                        <div class="container" ng-show="videoUrl != null">
+                                <a href="home.html" class="btn btn-primary btn-sm" style="background-color: #141D22">Go Back</a>
+                        </div>  
+                        <div class="clearfix"></div>
+                     </div>
+                     <div class="x_content">
+                        <br />
+
+                           <form data-parsley-validate class="form-horizontal form-label-left">
+                                <div class="container" ng-show="videoUrl != null">
+                                        <h1 style="color: #141D22"><b>Enjoy the stream!</b></h1>
+                                </div>  
+                           </form>
+                           <div class="container" ng-show="data != null">
+                              <div class="col-lg-4 col-sm-4 col-xs-4" ng-repeat="video in data">
+                                <a href="#" ng-click="openLive(video.videoId)" title="{{video.title}}" >
+                                <img src="{{video.imgurl}}" class="img-responsive" height="50%"  width="100%"/>
+                                    <h2 style="color: #141D22">{{video.title}}</h2>
+                                </a>
+                                <br>
+                              </div>
+                            </div>
+                            <div class="container" ng-show="videoUrl != null">
+                                <div class="form-group">
+                                    <div class="col-md-7 col-sm-7 col-xs-7" style="text-align: center;">
+                                        <iframe id="viewVideo" width="100%" height="480px"></iframe>
+                                    </div>
+                                    <div class="col-md-5 col-sm-5 col-xs-5">
+                                            <div class="container" ng-show="messages != null">
+                                                    <div class="row">
+                                                       <div class="col-md-12">
+                                                            <div hidden id="loading"></div>
+                                                          <div class="panel panel-primary">
+                                                             <div class="panel-heading" style="background-color: #141D22 !important;">
+                                                                <span class="glyphicon glyphicon-comment"></span> Chat
+                                                             </div>
+                                                             <div class="panel-body" id="chatbody">
+                                                                 <ul class="chat" >
+                                                                     <div ng-repeat="msg in messages" repeat-done="chatBody()">
+                                                                            <br>
+                                                                         <div class="row">
+                                                                            <div class="col-lg-12 col-sm-12 col-xs-12 divAmazing">
+                                                                            <li class="left clearfix">
+                                                                                    <span class="chat-img pull-left">
+                                                                                    <img src="{{msg.profileImg}}" alt="" class="img-circle" height="50px" width="50px" />
+                                                                                    </span>
+                                                                                    <div class="chat-body clearfix ">
+                                                                                       <div class="header">
+                                                                                          <strong class="primary-font">{{msg.authorName}}</strong>
+                                                                                       </div>
+                                                                                       <p>
+                                                                                            {{msg.message}}
+                                                                                       </p>
+                                                                                    </div>
+                                                                                 </li>
+                                                                                </div>
+                                                                                
+                                                                            </div>
+                                                                        </div>
+                                                                    </ul>
+                                                                </div>
+                                                             </div>
+                                                             <div class="panel-footer" onload="onload()">
+                                                                <div class="input-group">
+                                                                   <input id="btn-input" type="text" ng-keyup="$event.keyCode == 13 ? sendComment() : null" class="form-control input-sm" placeholder="Type your message here..." />
+                                                                   <span class="input-group-btn">
+                                                                   <button class="btn btn-warning btn-sm"  id="btn-chat" ng-click="sendComment()">
+                                                                   Send</button>
+                                                                   </span>
+                                                                </div>
+                                                             </div>
+                                                          </div>
+                                                       </div>
+                                                    </div>
+                                                 </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script src="assets/vendors/jquery/dist/jquery.min.js"></script>
+      <script src="assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+      <script src="assets/vendors/fastclick/lib/fastclick.js"></script>
+      <script src="assets/vendors/nprogress/nprogress.js"></script>
+      <script src="assets/vendors/Chart.js/dist/Chart.min.js"></script>
+      <script src="assets/vendors/gauge.js/dist/gauge.min.js"></script>
+      <script src="assets/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+      <script src="assets/vendors/iCheck/icheck.min.js"></script>
+      <script src="assets/vendors/skycons/skycons.js"></script>
+      <script src="assets/vendors/Flot/jquery.flot.js"></script>
+      <script src="assets/vendors/Flot/jquery.flot.pie.js"></script>
+      <script src="assets/vendors/Flot/jquery.flot.time.js"></script>
+      <script src="assets/vendors/Flot/jquery.flot.stack.js"></script>
+      <script src="assets/vendors/Flot/jquery.flot.resize.js"></script>
+      <script src="assets/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+      <script src="assets/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+      <script src="assets/vendors/flot.curvedlines/curvedLines.js"></script>
+      <script src="assets/vendors/DateJS/build/date.js"></script>
+      <script src="assets/vendors/jquery/dist/jquery.min.js"></script>
+      <script src="assets/vendors/jqvmap/dist/jquery.vmap.js"></script>
+      <script src="assets/vendors/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+      <script src="assets/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
+      <script src="assets/root/js/moment/moment.min.js"></script>
+      <script src="assets/root/js/datepicker/daterangepicker.js"></script>
+      <script src="assets/build/js/custom.min.js"></script>
+      <script src="assets/root/js/jquery.placepicker.js"></script>
+      <script src="assets/root/js/filepicker.js"></script>
+      <script src="assets/vendors/jquery.inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
+      <script>
+         $(document).ready(function(){
+             $('#world-map-gdp').vectorMap({
+                 map: 'world_en',
+                 backgroundColor: null,
+                 color: '#ffffff',
+                 hoverOpacity: 0.7,
+                 selectedColor: '#666666',
+                 enableZoom: true,
+                 showTooltip: true,
+                 values: sample_data,
+                 scaleColors: ['#E6F2F0', '#149B7E'],
+                 normalizeFunction: 'polynomial'
+             });
+         });
+      </script>
+      <script>
+         $(document).ready(function() {
+             var icons = new Skycons({
+                 "color": "#73879C"
+             }),
+             list = [
+                 "clear-day", "clear-night", "partly-cloudy-day",
+                 "partly-cloudy-night", "cloudy", "rain", "sleet", "snow", "wind",
+                 "fog"
+             ],
+             i;
+         
+             for (i = list.length; i--;)
+             icons.set(list[i], list[i]);
+         
+             icons.play();
+         });
+      </script>
+      <script>
+         $(document).ready(function(){
+             var options = {
+             legend: false,
+             responsive: false
+             };
+         
+             new Chart(document.getElementById("canvas1"), {
+             type: 'doughnut',
+             tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+             data: {
+                 labels: [
+                 "Symbian",
+                 "Blackberry",
+                 "Other",
+                 "Android",
+                 "IOS"
+                 ],
+                 datasets: [{
+                 data: [15, 20, 30, 10, 30],
+                 backgroundColor: [
+                     "#BDC3C7",
+                     "#9B59B6",
+                     "#E74C3C",
+                     "#26B99A",
+                     "#3498DB"
+                 ],
+                 hoverBackgroundColor: [
+                     "#CFD4D8",
+                     "#B370CF",
+                     "#E95E4F",
+                     "#36CAAB",
+                     "#49A9EA"
+                 ]
+                 }]
+             },
+             options: options
+             });
+         });
+      </script>
+      <script>
+         $(document).ready(function() {
+         
+             var cb = function(start, end, label) {
+             console.log(start.toISOString(), end.toISOString(), label);
+             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+             };
+         
+             var optionSet1 = {
+             startDate: moment().subtract(29, 'days'),
+             endDate: moment(),
+             minDate: '01/01/2012',
+             maxDate: '12/31/2015',
+             dateLimit: {
+                 days: 60
+             },
+             showDropdowns: true,
+             showWeekNumbers: true,
+             timePicker: false,
+             timePickerIncrement: 1,
+             timePicker12Hour: true,
+             ranges: {
+                 'Today': [moment(), moment()],
+                 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                 'This Month': [moment().startOf('month'), moment().endOf('month')],
+                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+             },
+             opens: 'left',
+             buttonClasses: ['btn btn-default'],
+             applyClass: 'btn-small btn-primary',
+             cancelClass: 'btn-small',
+             format: 'MM/DD/YYYY',
+             separator: ' to ',
+             locale: {
+                 applyLabel: 'Submit',
+                 cancelLabel: 'Clear',
+                 fromLabel: 'From',
+                 toLabel: 'To',
+                 customRangeLabel: 'Custom',
+                 daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                 monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                 firstDay: 1
+             }
+             };
+             $('#reportrange span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+             $('#reportrange').daterangepicker(optionSet1, cb);
+             $('#reportrange').on('show.daterangepicker', function() {
+             console.log("show event fired");
+             });
+             $('#reportrange').on('hide.daterangepicker', function() {
+             console.log("hide event fired");
+             });
+             $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+             console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+             });
+             $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
+             console.log("cancel event fired");
+             });
+             $('#options1').click(function() {
+             $('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
+             });
+             $('#options2').click(function() {
+             $('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
+             });
+             $('#destroy').click(function() {
+             $('#reportrange').data('daterangepicker').remove();
+             });
+         });
+      </script>
+      <script>
+         var opts = {
+             lines: 12,
+             angle: 0,
+             lineWidth: 0.4,
+             pointer: {
+                 length: 0.75,
+                 strokeWidth: 0.042,
+                 color: '#1D212A'
+             },
+             limitMax: 'false',
+             colorStart: '#1ABC9C',
+             colorStop: '#1ABC9C',
+             strokeColor: '#F0F3F3',
+             generateGradient: true
+         };
+         var target = document.getElementById('foo'),
+             gauge = new Gauge(target).setOptions(opts);
+         
+         gauge.maxValue = 6000;
+         gauge.animationSpeed = 32;
+         gauge.set(3200);
+         gauge.setTextField(document.getElementById("gauge-text"));
+      </script>
+      <footer>
+          <div class="pull-right">
+            Carlos Santos
+          </div>
+          <div class="clearfix"></div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

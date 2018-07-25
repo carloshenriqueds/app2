@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+	<link rel="stylesheet"   href="assets/vendors/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendors/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/vendors/nprogress/nprogress.css">
+    <link rel="stylesheet" href="assets/vendors/iCheck/skins/flat/green.css">
+    <link rel="stylesheet" href="assets/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css">
+    <link rel="stylesheet" href="assets/vendors/jqvmap/dist/jqvmap.min.css">
+    <link rel="stylesheet" href="assets/build/css/custom.min.css">
+    <link rel="stylesheet" href="assets/vendors/animate.css/animate.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+    <style type="text/css">
+    #customBtn {
+      display: inline-block;
+      background: white;
+      color: #444;
+      width: 170px;
+      border-radius: 5px;
+      border: thin solid #888;
+      box-shadow: 1px 1px 1px grey;
+      white-space: nowrap;
+    }
+    #customBtn:hover {
+      cursor: pointer;
+    }
+    span.label {
+      font-family: serif;
+      font-weight: normal;
+    }
+    span.icon {
+      background: url("assets/production/images/googlelogin.png") transparent 5px 50% no-repeat;
+      display: inline-block;
+      vertical-align: middle;
+      width: 42px;
+      height: 42px;
+    }
+    span.buttonText {
+      display: inline-block;
+      vertical-align: middle;
+      padding-right: 42px;
+      padding-top: 10px;
+      padding-left: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      font-family: 'Roboto', sans-serif;
+      height: 42px;
+    }
+  </style>
+  </head>
+  <body class="login">
+    <div>
+      <a class="hiddenanchor" id="signup"></a>
+      <a class="hiddenanchor" id="signin"></a>
+      <div class="login_wrapper">
+        <div class="animate form login_form">
+          <section class="login_content">
+              <div ng-app="myApp" ng-controller="cntrl">
+            <form>
+              <h1>Google Login</h1>
+              <div class="clearfix"></div>
+				<div>
+				    <div id="customBtn">
+                    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+				      <a href="Controller.php?method=loginGoogle"><span class="buttonText">Access with Google</span></a>
+				    </div>
+  				</div>
+  				<br>
+              <div class="separator">
+                <div class="clearfix"></div>
+                <br />
+                <div>
+                  <h1><i class="fa fa-camera"></i>Watch Live Streaming </h1>
+                </div>
+              </div>
+            </form>
+            </div>
+          </section>
+          <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+          <script>
+                var app=angular.module('myApp',[]);
+                app.controller('cntrl', function($scope,$http){
+                  $scope.btnName="Insert";
+                           
+                             $scope.setoken=function(){
+                               $http.post("Controller.php",{'method':'setToken'})
+                               .success(function(data){
+                                  window.location = "home.html";
+                           
+                               })
+                           
+                             }
+
+                            });
+
+
+            </script>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
