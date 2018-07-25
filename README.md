@@ -20,7 +20,7 @@ composer update
 
 - Create a Google Cloud Platform credentials and put client_secrets.json in project source folder.
 - Run sql.sql in your database.
-- Put your databases config in src/Model/DB.php
+- Put your database config in src/Model/DB.php
 - Setup yout API Key from Google Cloud Platform in ser/GoogleService.php
 
 
